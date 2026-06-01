@@ -1,17 +1,27 @@
 [project]
-name = "share-pc-live-stream"
-version = "0.1.0"
-description = "Add your description here"
+name = "pystream"
+version = "1.0.0"
+description = "Real-time multi-monitor screen sharing for classrooms — with group chat, voice chat, and fine-grained access control"
 readme = "README.md"
-requires-python = ">=3.14"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = ["screen-sharing", "classroom", "fastapi", "websocket", "teaching"]
+
 dependencies = [
-    "aiofiles>=24.1.0",
-    "fastapi>=0.136.3",
-    "mss>=10.2.0",
-    "numpy>=2.4.6",
-    "opencv-python>=4.13.0.92",
-    "pillow>=12.2.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "mss>=9.0.0",
+    "numpy>=1.26.0",
+    "opencv-python>=4.9.0",
+    "pillow>=10.0.0",
     "pyautogui>=0.9.54",
-    "uvicorn[standard]>=0.48.0",
-    "websockets>=16.0",
+    "websockets>=12.0",
 ]
+
+[project.urls]
+Repository = "https://github.com/Mcoder9/pystream"
+Issues     = "https://github.com/Mcoder9/pystream/issues"
+
+[build-system]
+requires      = ["hatchling"]
+build-backend = "hatchling.build"

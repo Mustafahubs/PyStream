@@ -31,6 +31,15 @@ uv.lock
 htmlcov/
 .coverage
 
+# SQLite database (auto-created on first run — never commit credentials)
+*.db
+*.db-shm
+*.db-wal
+
+# User uploads — keep folder structure, ignore contents
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
 # OS
 .DS_Store
 Thumbs.db
