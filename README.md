@@ -1,6 +1,17 @@
-# PyStream
+<div align="center">
+  <img src="assets/logo.svg" alt="PyStream" width="380"/>
+  <br/>
+  <strong>Real-time multi-monitor screen sharing for classrooms.</strong><br/>
+  The teacher shares their screen — students join in any browser with just a link. No installs, no accounts.
+  <br/><br/>
 
-Real-time screen sharing built for classrooms. The teacher shares one or more monitors; students join through a browser with just a link — no installs, no accounts.
+  ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
+  ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)
+  ![License](https://img.shields.io/badge/License-MIT-7209b7)
+  ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white)
+</div>
+
+---
 
 ---
 

@@ -1,0 +1,197 @@
+<svg viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+
+    <!-- ── Main gradient: hot-pink → deep-purple → electric-cyan ── -->
+    <linearGradient id="ps-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#f72585"/>
+      <stop offset="46%"  stop-color="#7209b7"/>
+      <stop offset="100%" stop-color="#4cc9f0"/>
+    </linearGradient>
+
+    <!-- ── Reversed gradient (for wordmark variety) ── -->
+    <linearGradient id="ps-grad-r" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%"   stop-color="#f72585"/>
+      <stop offset="46%"  stop-color="#7209b7"/>
+      <stop offset="100%" stop-color="#4cc9f0"/>
+    </linearGradient>
+
+    <!-- ── Screen fill: deep-space dark navy ── -->
+    <linearGradient id="ps-screen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#080616"/>
+    </linearGradient>
+
+    <!-- ── Monitor body fill ── -->
+    <linearGradient id="ps-body" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#1a1033"/>
+      <stop offset="100%" stop-color="#0d0a1e"/>
+    </linearGradient>
+
+    <!-- ── Shine highlight on monitor top ── -->
+    <linearGradient id="ps-shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="white" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ── Glow filter for broadcast arcs ── -->
+    <filter id="ps-arc-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- ── Glow filter for signal dot ── -->
+    <filter id="ps-dot-glow" x="-150%" y="-150%" width="400%" height="400%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- ── Glow filter for LIVE badge dot ── -->
+    <filter id="ps-live-glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════
+       BROADCAST ARCS
+       Centre of emission: (210, 158) — top of monitor
+       Arcs span ±65° from straight-up.
+       sin 65° ≈ 0.906   cos 65° ≈ 0.423
+       ═══════════════════════════════════════════════ -->
+
+  <!-- Arc 3 — largest (r = 92), most transparent -->
+  <path d="M 127 119 A 92 92 0 0 0 293 119"
+        fill="none"
+        stroke="url(#ps-grad)" stroke-width="3"
+        stroke-linecap="round"
+        opacity="0.38"
+        filter="url(#ps-arc-glow)"/>
+
+  <!-- Arc 2 — medium (r = 63) -->
+  <path d="M 153 132 A 63 63 0 0 0 267 132"
+        fill="none"
+        stroke="url(#ps-grad)" stroke-width="4.5"
+        stroke-linecap="round"
+        opacity="0.65"
+        filter="url(#ps-arc-glow)"/>
+
+  <!-- Arc 1 — smallest (r = 36), fully opaque and thickest -->
+  <path d="M 177 143 A 36 36 0 0 0 243 143"
+        fill="none"
+        stroke="url(#ps-grad)" stroke-width="6.5"
+        stroke-linecap="round"
+        opacity="1"
+        filter="url(#ps-arc-glow)"/>
+
+  <!-- Signal source: outer halo + inner dot + white core -->
+  <circle cx="210" cy="158" r="11" fill="#f72585" opacity="0.18" filter="url(#ps-dot-glow)"/>
+  <circle cx="210" cy="158" r="6"  fill="#f72585" filter="url(#ps-dot-glow)"/>
+  <circle cx="210" cy="158" r="2.8" fill="white"/>
+
+  <!-- ═══════════════════════════════════════════════
+       MONITOR BODY
+       ═══════════════════════════════════════════════ -->
+
+  <!-- Outer body -->
+  <rect x="113" y="158" width="194" height="108" rx="13"
+        fill="url(#ps-body)" stroke="#3730a3" stroke-width="1.5"/>
+
+  <!-- Shine overlay on top half of body -->
+  <rect x="113" y="158" width="194" height="54" rx="13"
+        fill="url(#ps-shine)"/>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN
+       ═══════════════════════════════════════════════ -->
+
+  <rect x="122" y="167" width="176" height="91" rx="7"
+        fill="url(#ps-screen)"/>
+
+  <!-- Subtle screen inner-edge glow -->
+  <rect x="122" y="167" width="176" height="91" rx="7"
+        fill="none" stroke="#4cc9f0" stroke-width="0.8" opacity="0.18"/>
+
+  <!-- Horizontal scanlines — CRT / broadcast aesthetic -->
+  <g fill="#818cf8" opacity="0.07">
+    <rect x="122" y="175" width="176" height="1"/>
+    <rect x="122" y="182" width="176" height="1"/>
+    <rect x="122" y="189" width="176" height="1"/>
+    <rect x="122" y="196" width="176" height="1"/>
+    <rect x="122" y="203" width="176" height="1"/>
+    <rect x="122" y="210" width="176" height="1"/>
+    <rect x="122" y="217" width="176" height="1"/>
+    <rect x="122" y="224" width="176" height="1"/>
+    <rect x="122" y="231" width="176" height="1"/>
+    <rect x="122" y="238" width="176" height="1"/>
+    <rect x="122" y="245" width="176" height="1"/>
+    <rect x="122" y="252" width="176" height="1"/>
+  </g>
+
+  <!-- Audio / stream wave visualizer bars inside screen -->
+  <g fill="none" stroke="url(#ps-grad)" stroke-linecap="round" opacity="0.4">
+    <!-- Wave line 1 -->
+    <polyline points="138,207 148,196 158,210 168,199 178,207 188,194 198,207 208,196 218,210 228,199 238,207 248,194 258,207 268,196 278,207 290,207"
+              stroke-width="1.8" fill="none"/>
+    <!-- Wave line 2 (fainter) -->
+    <polyline points="138,220 145,214 153,222 161,216 170,222 179,213 188,220 197,215 206,221 215,214 224,221 233,215 242,221 252,213 262,220 272,215 281,220 290,220"
+              stroke-width="1.3" fill="none" opacity="0.5"/>
+  </g>
+
+  <!-- LIVE badge — top-right of screen -->
+  <rect x="254" y="172" width="36" height="15" rx="4.5" fill="#dc2626"/>
+  <!-- Pulsing dot inside badge -->
+  <circle cx="262" cy="179.5" r="3.2" fill="#fca5a5" filter="url(#ps-live-glow)"/>
+  <circle cx="262" cy="179.5" r="2"   fill="white"/>
+  <!-- LIVE text -->
+  <text x="275" y="183.5"
+        font-family="Arial Black, Arial, sans-serif"
+        font-size="7" font-weight="900"
+        fill="white" letter-spacing="0.6">LIVE</text>
+
+  <!-- ═══════════════════════════════════════════════
+       MONITOR STAND
+       ═══════════════════════════════════════════════ -->
+
+  <!-- Neck -->
+  <rect x="202" y="266" width="16" height="18" rx="2.5" fill="#0d0a1e"/>
+
+  <!-- Base plate -->
+  <rect x="167" y="282" width="86" height="10" rx="5" fill="#0d0a1e"/>
+
+  <!-- Base plate highlight line -->
+  <rect x="175" y="283" width="70" height="1.5" rx="0.75"
+        fill="white" opacity="0.06"/>
+
+  <!-- ═══════════════════════════════════════════════
+       WORDMARK
+       ═══════════════════════════════════════════════ -->
+
+  <text x="210" y="325"
+        text-anchor="middle"
+        font-family="'Segoe UI', 'Arial Black', Arial, sans-serif"
+        font-size="40" font-weight="900"
+        fill="url(#ps-grad)"
+        letter-spacing="-1.5">PyStream</text>
+
+  <!-- ═══════════════════════════════════════════════
+       TAGLINE
+       ═══════════════════════════════════════════════ -->
+
+  <text x="210" y="344"
+        text-anchor="middle"
+        font-family="Arial, sans-serif"
+        font-size="10.5" font-weight="400"
+        fill="#64748b"
+        letter-spacing="3.2">LIVE CLASSROOM STREAMING</text>
+
+</svg>
