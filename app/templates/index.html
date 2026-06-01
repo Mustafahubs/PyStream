@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PyStream — Live Screen Share</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/chat.css">
+  <link rel="stylesheet" href="/static/css/voice.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FULL-PAGE OVERLAYS  (shown instead of the app on error)
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="no-session-overlay" class="full-overlay hidden">
+  <div class="ov-icon">📺</div>
+  <h2>No Session Link</h2>
+  <p>Ask your teacher for the current session link to join the stream.</p>
+</div>
+
+<div id="session-expired-overlay" class="full-overlay hidden">
+  <div class="ov-icon">🔗</div>
+  <h2>Session Expired</h2>
+  <p>This link is no longer valid. Ask your teacher for the new session link.</p>
+</div>
+
+<div id="kicked-overlay" class="full-overlay hidden">
+  <div class="ov-icon">🚫</div>
+  <h2>Removed from Session</h2>
+  <p>The host has removed you from this session.</p>
+</div>
+
+<div id="host-disconnected-overlay" class="full-overlay hidden">
+  <div class="ov-icon">🔌</div>
+  <h2>Host Disconnected</h2>
+  <p>The host has ended the session. Click below to check if they've come back online.</p>
+  <button onclick="location.reload()" style="margin-top:8px;padding:10px 28px;background:var(--accent);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">Retry Connection</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADMIN LOGIN MODAL
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="admin-modal" class="modal-backdrop hidden">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      PyStream
+    </div>
+    <div class="role-chip host">👑 Admin Login</div>
+
+    <div class="modal-field">
+      <label>Username</label>
+      <div id="admin-username-label"
+           style="padding:10px 14px;background:var(--panel-bg);border:1px solid var(--border);
+                  border-radius:9px;font-size:14px;color:var(--text-dim);text-align:left">
+        admin
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <label>Password</label>
+      <input id="admin-password" class="modal-input" type="password" placeholder="Enter password…" autocomplete="current-password"/>
+    </div>
+
+    <div class="modal-error" id="admin-login-error"></div>
+    <button id="admin-submit-btn" class="modal-btn gold">Login as Admin</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     STUDENT NAME MODAL
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="name-modal" class="modal-backdrop hidden">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      PyStream
+    </div>
+    <p class="modal-subtitle">Enter your name to join the live session.</p>
+
+    <div class="modal-field">
+      <label>Your name</label>
+      <input id="name-input" class="modal-input" type="text"
+             placeholder="Enter your name…" maxlength="50"
+             autocomplete="name" spellcheck="false"/>
+    </div>
+
+    <button id="name-submit-btn" class="modal-btn accent">Join Session</button>
+    <p class="modal-hint">Your name will be visible to all viewers.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SESSION LINK MODAL  (shown to admin after generating a link)
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="link-modal" class="modal-backdrop hidden">
+  <div class="modal-box">
+    <div class="modal-logo">🔗 New Session Created</div>
+    <p class="modal-subtitle">Share this link with your students:</p>
+    <div class="link-display" id="link-modal-url">—</div>
+    <button id="copy-link-btn"    class="modal-btn accent">Copy Link</button>
+    <button id="close-link-modal" class="modal-btn"
+            style="background:transparent;border:1px solid var(--border);color:var(--text-dim)">
+      Close
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOP BAR
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="topbar">
+  <button class="icon-btn" id="sidebar-toggle-btn" title="Toggle sidebar (B)">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor">
+      <rect y="2"    width="15" height="1.5" rx=".75"/>
+      <rect y="6.75" width="15" height="1.5" rx=".75"/>
+      <rect y="11.5" width="15" height="1.5" rx=".75"/>
+    </svg>
+  </button>
+
+  <div id="logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+    </svg>
+    PyStream
+  </div>
+
+  <div id="session-name">Loading…</div>
+
+  <div class="badge" id="host-topbar-badge">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M2 20h20v2H2zM4 17l4-8 4 4 4-8 4 8H4z"/>
+    </svg>
+    ADMIN
+  </div>
+
+  <!-- Chat toggle -->
+  <button class="icon-btn" id="chat-toggle-btn" title="Toggle chat (C)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span id="chat-unread-badge"></span>
+  </button>
+
+  <div class="badge" id="live-badge"><span class="dot"></span>LIVE</div>
+
+  <div class="badge" id="viewer-badge" title="Viewers online">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+    <span id="viewer-count">0</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BODY  (sidebar + main)
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="body">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <div id="sidebar">
+
+    <!-- Monitors -->
+    <div class="s-section">
+      <div class="s-label">Monitors</div>
+      <div id="monitor-list">
+        <div style="font-size:12px;color:var(--text-muted)">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Admin host panel (hidden for guests) -->
+    <div class="s-section" id="host-panel">
+      <div class="s-label">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="margin-right:3px">
+          <path d="M2 20h20v2H2zM4 17l4-8 4 4 4-8 4 8H4z"/>
+        </svg>
+        Admin Controls
+      </div>
+
+      <!-- Display name -->
+      <div style="margin-bottom:12px">
+        <div class="range-row" style="margin-bottom:5px"><span>Your display name</span></div>
+        <div class="host-row">
+          <input id="admin-display-name-input" class="host-input" type="text" placeholder="Display name…" maxlength="50"/>
+          <button id="save-display-name-btn" class="host-btn">Save</button>
+        </div>
+      </div>
+
+      <!-- Session link generation -->
+      <div>
+        <div class="range-row" style="margin-bottom:5px"><span>Session</span></div>
+        <div class="host-row">
+          <input id="session-name-input" class="host-input" type="text" placeholder="Session name…" maxlength="80"/>
+          <button id="new-session-btn" class="host-btn">New Link</button>
+        </div>
+        <div class="session-link-small" id="current-session-link">No active session</div>
+        <button id="copy-current-btn" class="host-btn" style="width:100%">Copy Link</button>
+      </div>
+    </div>
+
+    <!-- Screen access control (admin only) -->
+    <div class="s-section" id="screen-access-panel">
+      <div class="s-label">Screen Access</div>
+
+      <!-- Global private mode -->
+      <div class="toggle-row" style="margin-bottom:10px">
+        <span style="color:var(--gold)">🔒 Private All Screens</span>
+        <label class="sw">
+          <input type="checkbox" id="private-mode-cb"/>
+          <span class="sw-track"></span>
+        </label>
+      </div>
+
+      <!-- Per-monitor access rows (populated by sidebar.js) -->
+      <div id="monitor-permissions"></div>
+    </div>
+
+    <!-- Voice Chat -->
+    <div class="s-section" id="voice-section">
+      <div class="s-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="margin-right:3px">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+          <line x1="8"  y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Voice Chat
+      </div>
+
+      <!-- Input device (mic) -->
+      <div class="voice-device-row">
+        <span class="voice-device-label">Microphone (Input)</span>
+        <select id="voice-input-select" class="voice-device-select">
+          <option value="">Default Microphone</option>
+        </select>
+      </div>
+
+      <!-- Output device (speakers) -->
+      <div class="voice-device-row">
+        <span class="voice-device-label">Speakers (Output)</span>
+        <select id="voice-output-select" class="voice-device-select">
+          <option value="">Default Speakers</option>
+        </select>
+      </div>
+
+      <!-- Participants (populated by voice.js) -->
+      <div id="voice-participants"></div>
+
+      <!-- Admin-muted notice (hidden until admin mutes you) -->
+      <div id="voice-admin-muted-banner" class="hidden">
+        🔇 You have been muted by the admin
+      </div>
+
+      <!-- Connect + Mute -->
+      <div class="voice-actions">
+        <button id="voice-connect-btn" class="host-btn">Connect Voice</button>
+        <button id="voice-mute-btn"    class="host-btn">🎙 Mute</button>
+      </div>
+    </div>
+
+    <!-- Stream quality -->
+    <div class="s-section">
+      <div class="s-label">Stream Quality</div>
+      <div class="range-row">
+        <span>JPEG Quality</span>
+        <span id="q-val" style="color:var(--accent);font-weight:600">70</span>
+      </div>
+      <input type="range" id="q-slider" min="20" max="95" value="70" step="5"/>
+      <div class="range-hints"><span>Low bandwidth</span><span>Crisp</span></div>
+    </div>
+
+    <!-- Options -->
+    <div class="s-section">
+      <div class="s-label">Options</div>
+      <div class="toggle-row">
+        <span>Show cursor</span>
+        <label class="sw">
+          <input type="checkbox" id="cursor-cb" checked/>
+          <span class="sw-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Viewer list -->
+    <div class="s-section">
+      <div class="s-label" style="display:flex;align-items:center;gap:5px">
+        Viewers Online
+        <span id="vl-count"
+              style="font-size:10px;background:var(--accent-glow);color:var(--accent);
+                     border:1px solid rgba(99,102,241,.3);border-radius:10px;
+                     padding:0 6px;font-weight:700">0</span>
+      </div>
+      <div id="viewer-list-panel">
+        <div class="no-viewers">No viewers yet</div>
+      </div>
+    </div>
+
+    <!-- Live stats -->
+    <div class="s-section">
+      <div class="s-label">Live Stats</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val" id="stat-fps">—</div><div class="stat-lbl">FPS</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-viewers">0</div><div class="stat-lbl">Viewers</div></div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts -->
+    <div class="s-section">
+      <div class="s-label">Shortcuts</div>
+      <div class="shortcut-list">
+        <div class="shortcut-row"><span>Pause / Resume</span><kbd>Space</kbd></div>
+        <div class="shortcut-row"><span>Fullscreen</span><kbd>F</kbd></div>
+        <div class="shortcut-row"><span>Screenshot</span><kbd>S</kbd></div>
+        <div class="shortcut-row"><span>Zoom In / Out</span><kbd>+</kbd><kbd>-</kbd></div>
+        <div class="shortcut-row"><span>Reset Zoom</span><kbd>0</kbd></div>
+        <div class="shortcut-row"><span>Sidebar</span><kbd>B</kbd></div>
+        <div class="shortcut-row"><span>Chat</span><kbd>C</kbd></div>
+        <div class="shortcut-row"><span>Push to Talk (hold)</span><kbd>V</kbd></div>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+  <div id="sidebar-resize-handle" title="Drag to resize sidebar"></div>
+
+  <!-- ── MAIN CONTENT ────────────────────────────────────── -->
+  <div id="main">
+
+    <div id="screen-area">
+
+      <!-- Single-monitor view -->
+      <div id="single-view">
+        <img id="screen-img" src="" alt="Screen stream"/>
+      </div>
+
+      <!-- Private screen overlay (single-monitor mode) -->
+      <div id="single-private-overlay" class="hidden">
+        <div class="priv-icon">🔒</div>
+        <h3>Screen is Private</h3>
+        <p>The host has made this screen private.</p>
+      </div>
+
+      <!-- All-screens grid view -->
+      <div id="grid-view"></div>
+
+      <!-- Connecting / reconnecting spinner -->
+      <div id="stream-overlay">
+        <div class="spinner"></div>
+        <div id="overlay-msg">Connecting to stream…</div>
+      </div>
+
+    </div>
+
+    <!-- Drag handle between screen and chat panel -->
+    <div id="chat-resize-handle" class="hidden" title="Drag to resize chat"></div>
+
+    <!-- Chat panel (right side, collapsible) -->
+    <div id="chat-panel" class="hidden">
+      <div class="chat-header">
+        <div class="chat-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Group Chat
+        </div>
+      </div>
+
+      <div id="chat-messages"></div>
+
+      <!-- Reaction picker (positioned fixed by JS) -->
+      <div id="chat-reaction-picker" class="hidden"></div>
+
+      <div class="chat-footer" style="position:relative">
+
+        <!-- Reply bar -->
+        <div id="chat-reply-bar" class="hidden">
+          <div class="reply-bar-line"></div>
+          <div class="reply-bar-content">
+            <div style="flex:1;min-width:0">
+              <div class="reply-bar-sender" id="chat-reply-sender"></div>
+              <div class="reply-bar-text"   id="chat-reply-text"></div>
+            </div>
+            <button class="reply-bar-close" id="chat-reply-cancel" title="Cancel reply">✕</button>
+          </div>
+        </div>
+
+        <!-- Emoji picker popup -->
+        <div id="chat-emoji-picker" class="hidden"></div>
+
+        <!-- Code snippet panel -->
+        <div id="chat-code-panel" class="hidden">
+          <div class="code-panel-head">
+            <span class="code-panel-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+              Code Snippet
+            </span>
+            <select id="chat-code-lang" class="code-lang-sel">
+              <option value="python">Python</option>
+              <option value="javascript">JavaScript</option>
+              <option value="typescript">TypeScript</option>
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="json">JSON</option>
+              <option value="sql">SQL</option>
+              <option value="bash">Bash / Shell</option>
+              <option value="cpp">C / C++</option>
+              <option value="rust">Rust</option>
+              <option value="java">Java</option>
+              <option value="text">Plain text</option>
+            </select>
+            <button class="code-panel-close" id="chat-code-close" title="Close">✕</button>
+          </div>
+          <textarea id="chat-code-input" class="code-editor-ta"
+                    placeholder="Paste or type code here…   Tab = 4 spaces  ·  Ctrl+Enter = send"
+                    spellcheck="false"></textarea>
+          <button id="chat-code-send" class="chat-code-send-btn">Send Snippet</button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="chat-toolbar">
+          <button id="chat-emoji-btn" class="chat-tool" title="Emoji picker">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" stroke-linecap="round"/>
+              <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button id="chat-file-btn" class="chat-tool" title="Attach file (.py .zip .mp4 .png …)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+          <button id="chat-code-btn" class="chat-tool" title="Share code snippet">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </button>
+          <input id="chat-file-input" type="file" style="display:none"
+                 accept=".py,.zip,.mp4,.mp3,.wav,.png,.jpg,.jpeg,.gif,.webp,.pdf,.txt,.csv,.json,.md"/>
+          <span class="chat-tool" style="cursor:default;font-size:10px;color:var(--text-muted);margin-left:auto;font-family:monospace"
+                title="Markdown: **bold** *italic* `code` ~~strike~~ [text](url)">
+            **md**
+          </span>
+        </div>
+
+        <!-- Input row -->
+        <div class="chat-input-row">
+          <textarea id="chat-input"
+                    placeholder="Message everyone… (Shift+↵ for newline)"
+                    rows="1" maxlength="2000"></textarea>
+          <button id="chat-send-btn" class="chat-send-btn" title="Send (Enter)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="chat-footer-hint">**bold** &nbsp;*italic*&nbsp; `code`&nbsp; ~~strike~~&nbsp; [text](url)</div>
+      </div>
+    </div><!-- /chat-panel -->
+
+  </div>
+
+</div><!-- /body -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOTTOM BAR
+     ═══════════════════════════════════════════════════════════ -->
+
+<div id="bottombar">
+
+  <button class="btn" id="btn-pause" title="Pause/Resume (Space)">
+    <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="4" width="4" height="16"/>
+      <rect x="14" y="4" width="4" height="16"/>
+    </svg>
+    <span id="pause-label">Pause</span>
+  </button>
+
+  <div class="sep"></div>
+
+  <button class="btn" id="btn-zoom-in" title="Zoom In (+)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+    </svg>Zoom In
+  </button>
+
+  <button class="btn" id="btn-zoom-out" title="Zoom Out (-)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      <line x1="8" y1="11" x2="14" y2="11"/>
+    </svg>Zoom Out
+  </button>
+
+  <button class="btn" id="btn-zoom-reset" title="Reset zoom (0)">1:1</button>
+
+  <div class="sep"></div>
+
+  <button class="btn" id="btn-screenshot" title="Save screenshot (S)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>Screenshot
+  </button>
+
+  <div class="sep"></div>
+
+  <button class="btn" id="btn-fullscreen" title="Fullscreen (F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+    </svg>Fullscreen
+  </button>
+
+  <div class="sep"></div>
+
+  <button class="btn" id="voice-ptt-btn" title="Push to Talk — hold V key or hold button" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="currentColor" stroke="none"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8"  y1="23" x2="16" y2="23"/>
+    </svg>
+    <span id="voice-ptt-label">Talk</span>
+  </button>
+
+  <div id="fps-bar">
+    FPS: <span id="fps-val">—</span>&nbsp;&nbsp;
+    Quality: <span id="q-bar">70</span>%&nbsp;&nbsp;
+    <span id="conn-state" style="color:var(--green)">● Connected</span>
+  </div>
+
+</div><!-- /bottombar -->
+
+<script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

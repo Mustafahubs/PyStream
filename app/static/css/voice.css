@@ -1,0 +1,209 @@
+/* ═══════════════════════════════════════════════════
+   PyStream — Voice Chat styles
+   ═══════════════════════════════════════════════════ */
+
+/* ── Sidebar voice section ── */
+#voice-section .s-label {
+  display: flex; align-items: center; gap: 6px;
+}
+
+.voice-device-row {
+  margin-bottom: 7px;
+}
+.voice-device-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 4px; display: block;
+}
+.voice-device-select {
+  width: 100%; padding: 6px 8px;
+  background: var(--panel-bg); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--text); font-size: 12px;
+  outline: none; cursor: pointer; box-sizing: border-box;
+  transition: border-color .15s;
+}
+.voice-device-select:focus { border-color: var(--accent); }
+.voice-device-select:disabled { opacity: .45; cursor: default; }
+
+/* ── Voice action buttons ── */
+.voice-actions {
+  display: flex; gap: 6px; margin-top: 8px;
+}
+#voice-connect-btn {
+  flex: 1;
+}
+#voice-connect-btn.voice-active {
+  background: rgba(239,68,68,.15);
+  border-color: rgba(239,68,68,.4);
+  color: var(--red);
+}
+#voice-mute-btn {
+  flex-shrink: 0;
+  padding: 7px 10px; width: auto;
+}
+#voice-mute-btn.voice-muted {
+  background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.4);
+  color: var(--red);
+}
+
+/* ── Participant list ── */
+#voice-participants {
+  display: flex; flex-direction: column; gap: 2px;
+  margin: 6px 0 2px;
+  max-height: 180px; overflow-y: auto;
+}
+
+.vp-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 4px; border-radius: 8px;
+  transition: background .12s;
+}
+.vp-row:hover { background: rgba(255,255,255,.04); }
+
+/* ── Avatar circle ── */
+.vp-avatar {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  border: 2px solid rgba(99,102,241,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  user-select: none;
+  transition: border-color .25s, box-shadow .25s;
+}
+.vp-me .vp-avatar {
+  background: rgba(99,102,241,.22);
+  border-color: rgba(99,102,241,.55);
+}
+
+/* Green ring glow when this participant is speaking */
+.vp-row.speaking .vp-avatar {
+  border-color: var(--green);
+  animation: avatar-ring .9s ease-in-out infinite;
+}
+@keyframes avatar-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(34,197,94,.22), 0 0 0 7px rgba(34,197,94,.06);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(34,197,94,.3), 0 0 0 11px rgba(34,197,94,.03);
+  }
+}
+
+/* ── Name ── */
+.vp-name {
+  font-size: 12px; color: var(--text-dim); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.vp-me .vp-name { color: var(--accent); font-weight: 600; }
+
+/* ── Mute icon (mic-off SVG, visible when .muted) ── */
+.vp-mute-icon {
+  display: none;
+  flex-shrink: 0;
+  color: var(--red);
+  opacity: .85;
+  width: 12px; height: 12px;
+}
+.vp-row.muted .vp-mute-icon { display: block; }
+
+/* Dimmed name when muted */
+.vp-row.muted .vp-name { color: var(--text-muted); }
+
+/* Admin force-muted — red-tinted avatar */
+.vp-row.force-muted .vp-avatar {
+  background: rgba(239,68,68,.1);
+  border-color: rgba(239,68,68,.4);
+  color: var(--red);
+}
+
+/* ── Admin mute button (🔇 / 🔊) ── */
+.vp-admin-mute-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 2px 5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: all .12s;
+  margin-left: auto;
+}
+.vp-admin-mute-btn:hover {
+  background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.3);
+  color: var(--red);
+}
+.vp-admin-mute-btn.is-muted {
+  color: var(--red);
+}
+.vp-admin-mute-btn.is-muted:hover {
+  background: rgba(34,197,94,.12);
+  border-color: rgba(34,197,94,.3);
+  color: var(--green);
+}
+
+/* ── Admin-muted notice banner ── */
+#voice-admin-muted-banner {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.35);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 11px; color: var(--red); font-weight: 600;
+  margin-top: 6px;
+}
+#voice-admin-muted-banner.hidden { display: none; }
+
+/* ── Equalizer bars (visible only while speaking) ── */
+.vp-bars {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.vp-row.speaking .vp-bars { display: flex; }
+
+.vp-bars b {
+  display: block;
+  width: 2.5px;
+  border-radius: 2px;
+  background: var(--green);
+}
+.vp-bars b:nth-child(1) { animation: bw1 .65s ease-in-out infinite; }
+.vp-bars b:nth-child(2) { animation: bw2 .65s ease-in-out infinite .13s; }
+.vp-bars b:nth-child(3) { animation: bw3 .65s ease-in-out infinite .06s; }
+.vp-bars b:nth-child(4) { animation: bw4 .65s ease-in-out infinite .19s; }
+
+@keyframes bw1 { 0%,100%{height:3px}  50%{height:6px}  }
+@keyframes bw2 { 0%,100%{height:3px}  50%{height:13px} }
+@keyframes bw3 { 0%,100%{height:3px}  50%{height:9px}  }
+@keyframes bw4 { 0%,100%{height:3px}  50%{height:5px}  }
+
+/* ── PTT button in bottom bar ── */
+#voice-ptt-btn {
+  transition: all .1s;
+  min-width: 80px;
+}
+#voice-ptt-btn:disabled {
+  opacity: .35; cursor: not-allowed;
+  pointer-events: none;
+}
+#voice-ptt-btn.ptt-active {
+  background: rgba(34,197,94,.2);
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 0 3px rgba(34,197,94,.18);
+  animation: ptt-glow .9s ease-in-out infinite;
+}
+@keyframes ptt-glow {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
+  50%       { box-shadow: 0 0 0 6px rgba(34,197,94,.06); }
+}
