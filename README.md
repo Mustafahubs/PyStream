@@ -2,7 +2,7 @@
   <img src="assets/logo.svg" alt="PyStream" width="380"/>
   <br/>
   <strong>Real-time multi-monitor screen sharing for classrooms.</strong><br/>
-  The teacher shares their screen — students join in any browser with just a link. No installs, no accounts.
+  The teacher shares their screen students join in any browser with just a link. No installs, no accounts.
   <br/><br/>
 
   ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
