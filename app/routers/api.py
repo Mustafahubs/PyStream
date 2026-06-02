@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 import app.state as state
 from app import database
 
-_UPLOAD_DIR   = Path(__file__).parent.parent / "static" / "uploads"
+from app.paths import UPLOADS_DIR as _UPLOAD_DIR
 _ALLOWED_EXT  = {'.py','.zip','.mp4','.png','.jpg','.jpeg','.gif','.webp',
                  '.pdf','.txt','.csv','.json','.md','.mp3','.wav'}
 _MAX_UPLOAD   = 50 * 1024 * 1024   # 50 MB
@@ -289,7 +289,7 @@ async def chat_upload(
 
     return JSONResponse({
         "ok":       True,
-        "url":      f"/static/uploads/{stored}",
+        "url":      f"/uploads/{stored}",
         "filename": safe_name,
         "size":     len(body),
         "mime":     mimetypes.guess_type(safe_name)[0] or "application/octet-stream",

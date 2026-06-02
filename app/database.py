@@ -12,9 +12,8 @@ import hashlib
 import secrets
 import sqlite3
 from datetime import datetime
-from pathlib import Path
 
-_DB = Path("pystream.db")
+from app.paths import DB_PATH as _DB
 
 
 def _conn() -> sqlite3.Connection:

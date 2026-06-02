@@ -1,12 +1,15 @@
-"""Entry point — start the server with:
+"""Development launcher — equivalent to running `pystream --dev`.
 
-    python main.py
-
-Or directly with uvicorn for more control:
-
-    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+For production use, install the package and run the `pystream` command:
+    pip install .
+    pystream
 """
-import uvicorn
+
+from app.cli import main
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    import sys
+    # Inject --dev so uvicorn watches for file changes during development
+    if "--dev" not in sys.argv:
+        sys.argv.append("--dev")
+    main()

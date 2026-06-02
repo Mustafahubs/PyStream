@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="PyStream" width="380"/>
+  <img src="https://raw.githubusercontent.com/Mustafahubs/Classtream/main/assets/logo.svg" alt="Classtream" width="380"/>
   <br/>
   <strong>Real-time multi-monitor screen sharing for classrooms.</strong><br/>
-  The teacher shares their screen students join in any browser with just a link. No installs, no accounts.
+  The teacher shares their screen — students join in any browser with just a link. No installs, no accounts.
   <br/><br/>
 
   ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)
@@ -10,8 +10,6 @@
   ![License](https://img.shields.io/badge/License-MIT-7209b7)
   ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white)
 </div>
-
----
 
 ---
 
@@ -36,40 +34,59 @@
 
 ---
 
-## Quick Start
+## Install
+
+### From PyPI
 
 ```bash
-# 1. Clone
-git clone https://github.com/Mcoder9/pystream.git
-cd pystream
+pip install classtream
+classtream
+```
 
-# 2. Create and activate a virtual environment
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # Linux / macOS
+### From source
 
-# 3. Install dependencies
+```bash
+git clone https://github.com/Mustafahubs/Classtream.git
+cd Classtream
+pip install .
+classtream
+```
+
+### For development (auto-reload on code changes)
+
+```bash
 pip install -e .
-
-# 4. Run
-python main.py
+python main.py        # equivalent to: classtream --dev
 ```
 
-On first run PyStream prints its address and creates a default admin account:
+### CLI options
 
 ```
-  ──────────────────────────────────────────────────────
-  PyStream is live!
-  ──────────────────────────────────────────────────────
+classtream [options]
+
+  --host HOST        Bind address (default: 0.0.0.0)
+  --port PORT        Port (default: 8000)
+  --data-dir PATH    Override data directory (default: ~/.classtream)
+  --dev              Enable auto-reload
+  --version          Show version and exit
+```
+
+On first run Classtream prints its address and creates a default admin account:
+
+```
+  ──────────────────────────────────────────────────────────
+  Classtream 1.0.0 is live!
+  ──────────────────────────────────────────────────────────
   Admin URL    →  http://192.168.x.x:8000/?host=admin
   Student URL  →  http://192.168.x.x:8000/?join=<token>
-  ──────────────────────────────────────────────────────
+  Data dir     →  C:\Users\you\.classtream
+  ──────────────────────────────────────────────────────────
   ⚠  First run — default login: admin / admin123
   ⚠  Change the password in the Admin panel!
-  ──────────────────────────────────────────────────────
+  ──────────────────────────────────────────────────────────
 ```
 
-> **Security note** — change the default password immediately. The database (`pystream.db`) is created locally and is not committed to git.
+> **Security note** — change the default password immediately. The database (`classtream.db`) lives in `~/.classtream/` and is never committed to git.
 
 ---
 
@@ -139,17 +156,19 @@ All runtime settings are adjustable live from the admin panel — no server rest
 | Show cursor | On | Draws an arrow cursor overlay on frames |
 | Session name | "Python Live Session" | Shown in the browser tab and topbar |
 
-The database (`pystream.db`) is created automatically and stores admin accounts and session tokens. It is excluded from git by `.gitignore` — back it up manually if you want to preserve your admin password across reinstalls.
+The database (`classtream.db`) is stored in `~/.classtream/` and is never committed to git. Back it up manually if you want to preserve your admin password across reinstalls.
 
 ---
 
 ## Project Structure
 
 ```
-pystream/
-├── main.py                  # Entry point (uvicorn launcher)
+Classtream/
+├── main.py                  # Dev launcher (equivalent to classtream --dev)
 ├── app/
 │   ├── main.py              # FastAPI app, router wiring, startup
+│   ├── cli.py               # classtream command entry point
+│   ├── paths.py             # Package vs user-data path resolution
 │   ├── capture.py           # Screen capture loop (mss + OpenCV)
 │   ├── config.py            # Runtime settings dataclass
 │   ├── database.py          # SQLite helpers (admins, sessions)
@@ -161,27 +180,13 @@ pystream/
 │   │   ├── voice.py         # Voice-chat WebSocket (/voice/ws)
 │   │   └── frontend.py      # Serves index.html
 │   ├── static/
-│   │   ├── css/
-│   │   │   ├── style.css    # Main layout and component styles
-│   │   │   ├── chat.css     # Chat panel, code blocks, syntax colours
-│   │   │   └── voice.css    # Voice participant list, PTT button
-│   │   ├── js/
-│   │   │   ├── main.js      # Composition root — wires all modules
-│   │   │   ├── state.js     # Shared client state singleton
-│   │   │   ├── config.js    # URL-param helpers
-│   │   │   ├── stream.js    # WebSocket + frame rendering
-│   │   │   ├── viewers.js   # Viewer list, server-message routing
-│   │   │   ├── auth.js      # Login modals, token persistence
-│   │   │   ├── sidebar.js   # Monitor list, permissions UI
-│   │   │   ├── controls.js  # Keyboard shortcuts, zoom, sidebar resize
-│   │   │   ├── api.js       # fetch() wrappers
-│   │   │   ├── chat.js      # Group chat — render, send, reactions
-│   │   │   └── voice.js     # Voice chat — capture, playback, UI
-│   │   ├── sounds/
-│   │   │   └── notify.wav   # Chat notification sound
-│   │   └── uploads/         # User-uploaded files (gitignored)
+│   │   ├── css/             # style.css · chat.css · voice.css
+│   │   ├── js/              # main.js · stream.js · chat.js · voice.js …
+│   │   └── sounds/          # notify.wav
 │   └── templates/
 │       └── index.html       # Single-page app shell
+├── assets/
+│   └── logo.svg
 ├── pyproject.toml
 ├── LICENSE
 └── README.md
@@ -193,16 +198,16 @@ pystream/
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
-Short version:
-
 ```bash
 # Fork → clone → branch
+git clone https://github.com/Mustafahubs/Classtream.git
 git checkout -b feature/my-feature
 
-# Make changes, then run and test manually
-python main.py
+# Run locally
+pip install -e .
+classtream --dev
 
-# Commit and open a PR
+# Open a PR against main
 ```
 
 ---

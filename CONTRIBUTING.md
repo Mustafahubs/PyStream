@@ -1,6 +1,6 @@
-# Contributing to PyStream
+# Contributing to Classtream
 
-Thank you for wanting to improve PyStream. This document covers everything you need to get from zero to a merged pull request.
+Thank you for wanting to improve Classtream. This document covers everything you need to get from zero to a merged pull request.
 
 ---
 
@@ -23,7 +23,7 @@ Thank you for wanting to improve PyStream. This document covers everything you n
 
 ```bash
 # Fork the repo on GitHub, then clone your fork
-git clone https://github.com/<your-username>/pystream.git
+git clone https://github.com/<your-username>/Classtream.git
 cd pystream
 
 # Create a virtual environment
@@ -37,7 +37,7 @@ python -m venv .venv
 pip install -e .
 ```
 
-The database (`pystream.db`) is created automatically on first run and is gitignored — you will never accidentally commit credentials.
+The database (`classtream.db`) is created automatically on first run (in `~/.classtream/`) and is gitignored — you will never accidentally commit credentials.
 
 ---
 
@@ -189,7 +189,7 @@ PRs that change Python dependencies must update `pyproject.toml`. PRs that chang
 
 ## 7. Reporting bugs
 
-Open an issue at [github.com/Mcoder9/pystream/issues](https://github.com/Mcoder9/pystream/issues) and include:
+Open an issue at [github.com/Mustafahubs/Classtream/issues](https://github.com/Mustafahubs/Classtream/issues) and include:
 
 - OS and Python version.
 - Browser name and version.
